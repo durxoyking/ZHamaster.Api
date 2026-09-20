@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.idea/
+
+appsettings.Development.json
+
+firebase-admin.json
+
+*.user
+*.suo
