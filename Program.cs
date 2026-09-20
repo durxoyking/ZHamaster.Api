@@ -32,6 +32,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
+builder.WebHost.UseUrls("http://+:8080");
+
 var app = builder.Build();
 
 
