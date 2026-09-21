@@ -43,3 +43,18 @@ currently loaded catalog page by media kind; “See all” requests that kind's
 catalog. Missing media never becomes a fabricated sample listing. The banner's
 concert artwork is promotional, and Lato typography is bundled under OFL with
 Noto Sans Bengali fallback. The existing API configuration still applies.
+
+## Video countries
+
+Home requests `excludeMusic=true`; the Audio destination and audio shelf are removed.
+`GET /api/content?kind=video&country=BD` filters by the video's stored ISO two-letter
+country code, independently of its title. Search and pagination retain that filter.
+Every catalog response includes `countries: [{"code":"BD","name":"Bangladesh"}]`,
+derived from all videos with a nonempty media URL, independent of pagination/search.
+The Home country row offers all represented countries plus an All countries reset.
+
+Apply the `AddVideoCountry` EF migration before deploying this API. Video ingestion
+must populate `Videos.CountryCode` (e.g. `BD`, `JP`, `BR`); this repository has no
+video upload endpoint/UI. Existing videos have null country until assigned by the
+uploader/admin and remain visible in the unfiltered catalog. Countries are not
+inferred from video titles or a viewer's location.

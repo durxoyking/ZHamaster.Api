@@ -1,74 +1,31 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ZHamaster.Api.Data;
 using ZHamaster.Api.Models;
-using ZHamaster.Api.Services;
 
 namespace ZHamaster.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class AuthController(AppDbContext db) : ControllerBase
 {
-    private readonly FirebaseService _firebase;
-    private readonly AppDbContext _db;
-
-    public AuthController(
-        FirebaseService firebase,
-        AppDbContext db)
-    {
-        _firebase = firebase;
-        _db = db;
-    }
-
-
+    // Accept only verified Firebase bearer tokens, never client-supplied roles.
     [HttpPost("login")]
-    public async Task<IActionResult> Login(
-        [FromBody] TokenRequest request)
+    public async Task<IActionResult> Login(CancellationToken cancellationToken)
     {
-        var firebaseUser =
-            await _firebase.VerifyToken(
-                request.IdToken
-            );
-
-
-        var user =
-            _db.Users.FirstOrDefault(
-                x => x.FirebaseUid == firebaseUser.Uid
-            );
-
-
-        if(user == null)
+        var uid = User.FindFirst("sub")!.Value;
+        var user = await db.Users.FirstOrDefaultAsync(x => x.FirebaseUid == uid, cancellationToken);
+        if (user == null)
         {
-            user = new AppUser
-            {
-                FirebaseUid = firebaseUser.Uid,
-
-                Email =
-                firebaseUser.Claims["email"]
-                ?.ToString() ?? "",
-
-                Name =
-                firebaseUser.Claims["name"]
-                ?.ToString() ?? "",
-
-                PhotoUrl =
-                firebaseUser.Claims["picture"]
-                ?.ToString() ?? ""
-            };
-
-
-            _db.Users.Add(user);
-
-            await _db.SaveChangesAsync();
+            user = new AppUser { FirebaseUid = uid };
+            db.Users.Add(user);
         }
-
-
-        return Ok(user);
+        user.Email = User.FindFirst("email")?.Value ?? "";
+        user.Name = User.FindFirst("name")?.Value ?? "";
+        user.PhotoUrl = User.FindFirst("picture")?.Value ?? "";
+        await db.SaveChangesAsync(cancellationToken);
+        return Ok(new { user.Id, user.Name, user.Email, user.PhotoUrl });
     }
-}
-
-
-public class TokenRequest
-{
-    public string IdToken { get; set; } = "";
 }

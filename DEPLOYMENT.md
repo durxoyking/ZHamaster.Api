@@ -11,3 +11,18 @@ Set `Cors__AllowedOrigins__0=https://z-hamaster.web.app` and `Cors__AllowedOrigi
 Run parser regression checks with `dotnet run --project tests/ConnectionConfiguration` and build with `dotnet build`.
 
 Build the Flutter client with `flutter build web --dart-define=API_BASE_URL=https://zhamaster-api.onrender.com`, then deploy its configured Firebase Hosting site. Firebase Authentication must allow the hosting domain and enable the intended sign-in providers.
+
+## Current production behavior
+
+The client uses `excludeMusic=true&playableOnly=true`; Audio and unimplemented
+Premium purchase offers are hidden. The catalog never contains seeded demo media.
+Video country codes are migrated by `AddVideoCountry`; ingest real media with a
+valid ISO alpha-2 country code for country discovery.
+
+Backend authentication now validates Firebase bearer tokens against Google's
+rotating public certificates. `Firebase__ProjectId` defaults to `z-hamaster`.
+No Firebase service-account private key is required for login verification.
+`POST /api/auth/login` takes `Authorization: Bearer <Firebase ID token>` and
+upserts only the caller's profile. `GET /api/users` requires a verified email
+listed in `Admin__Emails__0` (and subsequent array indices); public user creation
+and client-controlled roles have been removed. No admin is granted by default.

@@ -6,6 +6,10 @@ public class Video
 
     public string Title {get;set;} = "";
 
+    // ISO 3166-1 alpha-2 code supplied when a video is uploaded (e.g. BD).
+    [System.ComponentModel.DataAnnotations.MaxLength(2)]
+    public string? CountryCode { get; set; }
+
     public string Description {get;set;} = "";
 
     public string VideoUrl {get;set;} = "";
