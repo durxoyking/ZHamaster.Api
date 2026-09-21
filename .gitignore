@@ -9,3 +9,5 @@ firebase-admin.json
 
 *.user
 *.suo
+
+*.log
