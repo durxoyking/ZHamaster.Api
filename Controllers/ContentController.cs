@@ -52,11 +52,8 @@ public class ContentController(AppDbContext db) : ControllerBase
                 .ToListAsync(cancellationToken));
         var result = items.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.Kind)
             .ThenByDescending(x => x.Id).Skip(skip).Take(pageSize + 1).ToList();
-        var codes = await db.Videos.AsNoTracking()
-            .Where(x => x.VideoUrl != "" && (!playableOnly || (x.IsFree && x.CoinPrice == 0)) && x.CountryCode != null && x.CountryCode != "")
-            .Select(x => x.CountryCode!.Trim().ToUpper()).Distinct().ToListAsync(cancellationToken);
-        var countries = codes.Where(CountryCatalog.Names.ContainsKey)
-            .Select(code => new { code, name = CountryCatalog.Names[code] })
+        var countries = CountryCatalog.Names
+            .Select(entry => new { code = entry.Key, name = entry.Value })
             .OrderBy(x => x.name).ToList();
         return Ok(new { items = result.Take(pageSize), hasMore = result.Count > pageSize, page, countries });
     }

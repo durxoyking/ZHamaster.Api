@@ -50,8 +50,8 @@ Home requests `excludeMusic=true`; the Audio destination and audio shelf are rem
 `GET /api/content?kind=video&country=BD` filters by the video's stored ISO two-letter
 country code, independently of its title. Search and pagination retain that filter.
 Every catalog response includes `countries: [{"code":"BD","name":"Bangladesh"}]`,
-derived from all videos with a nonempty media URL, independent of pagination/search.
-The Home country row offers all represented countries plus an All countries reset.
+containing all 249 ISO countries and territories, even when the catalog is empty.
+The Home country row offers all countries plus an All countries reset.
 
 Apply the `AddVideoCountry` EF migration before deploying this API. Video ingestion
 must populate `Videos.CountryCode` (e.g. `BD`, `JP`, `BR`); this repository has no
